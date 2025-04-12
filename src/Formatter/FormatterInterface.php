@@ -12,4 +12,4 @@ interface FormatterInterface
      * @return string The formatted output
      */
     public function format(array $results, int $startNumber): string;
-} 
+}

@@ -11,4 +11,4 @@ class FizzRule extends AbstractRule
     ) {
         parent::__construct($divisor, $output, $priority);
     }
-} 
+}

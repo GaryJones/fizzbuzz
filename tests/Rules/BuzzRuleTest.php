@@ -43,4 +43,4 @@ class BuzzRuleTest extends TestCase
             'not divisible by 5' => [9, false],
         ];
     }
-} 
+}

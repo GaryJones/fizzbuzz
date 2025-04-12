@@ -11,4 +11,4 @@ class BazzRule extends AbstractRule
     ) {
         parent::__construct($divisor, $output, $priority);
     }
-} 
+}

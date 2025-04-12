@@ -13,8 +13,9 @@ readonly class Result
     public function __construct(
         private Number $number,
         private string $output,
-    ) {}
-    
+    ) {
+    }
+
     /**
      * Get the number that produced this result
      *
@@ -24,7 +25,7 @@ readonly class Result
     {
         return $this->number;
     }
-    
+
     /**
      * Get the result output
      *
@@ -34,7 +35,7 @@ readonly class Result
     {
         return $this->output;
     }
-    
+
     /**
      * Check if the result contains a specific word
      *
@@ -45,7 +46,7 @@ readonly class Result
     {
         return str_contains($this->output, $word);
     }
-    
+
     /**
      * Convert the result to an array representation
      *
@@ -58,7 +59,7 @@ readonly class Result
             'result' => $this->output
         ];
     }
-    
+
     /**
      * Convert the result to a string
      *
@@ -68,4 +69,4 @@ readonly class Result
     {
         return $this->output;
     }
-} 
+}

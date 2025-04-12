@@ -15,4 +15,4 @@ class CsvFormatter implements FormatterInterface
     {
         return implode(',', $results);
     }
-} 
+}

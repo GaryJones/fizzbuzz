@@ -100,6 +100,28 @@ vendor/bin/phpunit
 vendor/bin/phpunit --coverage-html coverage
 ```
 
+### Continuous Integration
+
+This project uses GitHub Actions to run tests automatically on:
+- Every push to the main branch
+- Every pull request targeting the main branch
+
+Tests are run against PHP 8.1, 8.2, and 8.3 to ensure compatibility across PHP versions.
+
+## Coding Standards
+
+This project follows the PSR-12 coding standard. You can check and fix coding standards issues using:
+
+```bash
+# Check coding standards
+composer cs-check
+
+# Fix coding standards issues automatically
+composer cs-fix
+```
+
+Coding standards are automatically checked on every push and pull request using GitHub Actions.
+
 ## Development
 
 ### Adding a New Rule
@@ -132,41 +154,12 @@ $fizzBuzz = new FizzBuzz([
 ]);
 ```
 
-## Project Structure
-
-```
-fizzbuzz/
-├── bin/
-│   └── fizzbuzz.php
-├── src/
-│   ├── FizzBuzz.php
-│   ├── Rules/
-│   │   ├── AbstractRule.php
-│   │   ├── Rule.php
-│   │   ├── FizzRule.php
-│   │   ├── BuzzRule.php
-│   │   └── BazzRule.php
-│   └── Value/
-│       ├── Number.php
-│       └── Result.php
-├── tests/
-│   ├── FizzBuzzTest.php
-│   └── Rules/
-│       ├── FizzRuleTest.php
-│       ├── BuzzRuleTest.php
-│       └── BazzRuleTest.php
-├── .editorconfig
-├── .gitignore
-├── composer.json
-├── LICENSE
-└── README.md
-```
-
 ## Development Tools
 
 - PHPUnit for testing
 - EditorConfig for consistent coding style
-- PSR-12 coding standards
+- PHP_CodeSniffer for PSR-12 coding standards
+- GitHub Actions for continuous integration
 
 ## License
 

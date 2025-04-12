@@ -8,7 +8,8 @@ abstract class AbstractRule implements Rule
         private readonly int $divisor,
         private readonly string $output,
         private readonly int $priority
-    ) {}
+    ) {
+    }
 
     public function getPriority(): int
     {
@@ -26,7 +27,7 @@ abstract class AbstractRule implements Rule
 
     public function matches(int $number): bool
     {
-        return match(true) {
+        return match (true) {
             $number % $this->divisor === 0 => true,
             default => false,
         };
@@ -45,4 +46,4 @@ abstract class AbstractRule implements Rule
             priority: $config['priority'] ?? 1
         );
     }
-} 
+}

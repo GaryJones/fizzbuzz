@@ -44,4 +44,4 @@ class BazzRuleTest extends TestCase
             'not divisible by 7' => [10, false],
         ];
     }
-} 
+}

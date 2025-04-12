@@ -20,7 +20,7 @@ class JsonFormatter implements FormatterInterface
                 'result' => $results[$i - $startNumber]
             ];
         }
-        
+
         return json_encode($jsonOutput, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
-} 
+}

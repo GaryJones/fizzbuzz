@@ -50,7 +50,7 @@ class FizzBuzz
         for ($i = $start; $i <= $end; $i++) {
             $results[] = $this->process(new Number($i));
         }
-        
+
         return $results;
     }
 
@@ -82,6 +82,4 @@ class FizzBuzz
             }
         }
     }
-} 
-
-
+}

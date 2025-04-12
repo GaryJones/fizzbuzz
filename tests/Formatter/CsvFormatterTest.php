@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 class CsvFormatterTest extends TestCase
 {
     private CsvFormatter $formatter;
-    
+
     protected function setUp(): void
     {
         $this->formatter = new CsvFormatter();
     }
-    
+
     /**
      * Test that format returns comma-separated values
      */
@@ -21,12 +21,12 @@ class CsvFormatterTest extends TestCase
     {
         $results = ['1', '2', 'Fizz', '4', 'Buzz'];
         $startNumber = 1;
-        
+
         $output = $this->formatter->format($results, $startNumber);
-        
+
         $this->assertEquals('1,2,Fizz,4,Buzz', $output);
     }
-    
+
     /**
      * Test that format handles empty results
      */
@@ -34,12 +34,12 @@ class CsvFormatterTest extends TestCase
     {
         $results = [];
         $startNumber = 1;
-        
+
         $output = $this->formatter->format($results, $startNumber);
-        
+
         $this->assertEquals('', $output);
     }
-    
+
     /**
      * Test that format handles single result
      */
@@ -47,9 +47,9 @@ class CsvFormatterTest extends TestCase
     {
         $results = ['Fizz'];
         $startNumber = 3;
-        
+
         $output = $this->formatter->format($results, $startNumber);
-        
+
         $this->assertEquals('Fizz', $output);
     }
-} 
+}

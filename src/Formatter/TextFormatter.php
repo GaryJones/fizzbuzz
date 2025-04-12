@@ -9,9 +9,9 @@ class TextFormatter implements FormatterInterface
         'Buzz' => "\033[34m", // Blue
         'Bazz' => "\033[35m", // Magenta
     ];
-    
+
     private string $reset = "\033[0m";
-    
+
     /**
      * Format the results as colored text
      *
@@ -25,10 +25,10 @@ class TextFormatter implements FormatterInterface
         foreach ($results as $result) {
             $formatted[] = $this->colorizeResult($result);
         }
-        
+
         return implode("\n", $formatted);
     }
-    
+
     /**
      * Colorize a result string
      *
@@ -41,7 +41,7 @@ class TextFormatter implements FormatterInterface
         if (is_numeric($result)) {
             return $result;
         }
-        
+
         // Apply colors to each part
         $coloredResult = $result;
         foreach ($this->colors as $word => $color) {
@@ -49,7 +49,7 @@ class TextFormatter implements FormatterInterface
                 $coloredResult = str_replace($word, $color . $word . $this->reset, $coloredResult);
             }
         }
-        
+
         return $coloredResult;
     }
-} 
+}

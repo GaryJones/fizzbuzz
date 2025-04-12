@@ -20,4 +20,4 @@ class FormatterFactory
             default => throw new \InvalidArgumentException("Unsupported format: $format"),
         };
     }
-} 
+}

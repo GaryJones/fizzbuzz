@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ruleset name="FizzBuzz">
+    <description>FizzBuzz coding standard</description>
+
+    <!-- Scan all files in the src directory -->
+    <file>src</file>
+    <file>tests</file>
+    <file>bin</file>
+
+    <!-- Exclude vendor directory -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Use PSR-12 as the base -->
+    <rule ref="PSR12"/>
+
+    <!-- Show progress -->
+    <arg value="sp"/>
+
+    <!-- Show sniff and progress -->
+    <arg name="colors"/>
+
+    <!-- Use spaces for indentation -->
+    <arg name="tab-width" value="4"/>
+
+    <!-- Line length -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+        <severity>3</severity>
+    </rule>
+</ruleset> 

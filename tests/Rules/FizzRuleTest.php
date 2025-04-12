@@ -41,7 +41,7 @@ class FizzRuleTest extends TestCase
     public function testGetConfig(): void
     {
         $config = $this->rule->getConfig();
-        
+
         $this->assertEquals(3, $config['divisor']);
         $this->assertEquals('Fizz', $config['output']);
     }
@@ -53,7 +53,7 @@ class FizzRuleTest extends TestCase
     {
         $rule = new FizzRule(6, 'Custom', 5);
         $config = $rule->getConfig();
-        
+
         $this->assertEquals(6, $config['divisor']);
         $this->assertEquals('Custom', $config['output']);
         $this->assertEquals(5, $rule->getPriority());
@@ -73,4 +73,4 @@ class FizzRuleTest extends TestCase
             'not divisible by 3' => [8, false],
         ];
     }
-} 
+}

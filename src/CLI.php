@@ -16,38 +16,38 @@ class CLI
     public static function run(array $argv): string
     {
         $options = self::parseOptions($argv);
-        
+
         if (isset($options['help'])) {
             return self::showHelp();
         }
-        
+
         $maxNumber = $options['max'] ?? 100;
         $startNumber = $options['start'] ?? 1;
         $format = $options['format'] ?? 'text';
-        
+
         // Validate input
         if ($maxNumber < 1) {
             return "Error: Maximum number must be greater than 0\n";
         }
-        
+
         if ($startNumber < 1) {
             return "Error: Start number must be greater than 0\n";
         }
-        
+
         if ($startNumber > $maxNumber) {
             return "Error: Start number cannot be greater than maximum number\n";
         }
-        
+
         // Create FizzBuzz instance with rules
         $fizzBuzz = new FizzBuzz([
             new Rules\FizzRule(),
             new Rules\BuzzRule(),
             new Rules\BazzRule()
         ]);
-        
+
         // Get results
         $results = $fizzBuzz->processRange($startNumber, $maxNumber);
-        
+
         // Format output
         try {
             $formatter = FormatterFactory::create($format);
@@ -56,7 +56,7 @@ class CLI
             return "Error: " . $e->getMessage() . "\n";
         }
     }
-    
+
     /**
      * Parse command line options
      *
@@ -66,13 +66,13 @@ class CLI
     private static function parseOptions(array $argv): array
     {
         $options = [];
-        
+
         // Skip the script name
         array_shift($argv);
-        
+
         for ($i = 0; $i < count($argv); $i++) {
             $arg = $argv[$i];
-            
+
             if ($arg === '--help' || $arg === '-h') {
                 $options['help'] = true;
             } elseif ($arg === '--max' || $arg === '-n') {
@@ -83,10 +83,10 @@ class CLI
                 $options['format'] = $argv[++$i];
             }
         }
-        
+
         return $options;
     }
-    
+
     /**
      * Show help message
      *
@@ -112,4 +112,4 @@ Examples:
   php fizzbuzz.php --start 5 --max 15 --format csv
 HELP;
     }
-} 
+}

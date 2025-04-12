@@ -5,7 +5,7 @@ namespace FizzBuzz\Value;
 class Number
 {
     private int $value;
-    
+
     /**
      * Create a new Number value object
      *
@@ -17,10 +17,10 @@ class Number
         if ($value < 1) {
             throw new \InvalidArgumentException('Number must be greater than 0');
         }
-        
+
         $this->value = $value;
     }
-    
+
     /**
      * Get the number value
      *
@@ -30,7 +30,7 @@ class Number
     {
         return $this->value;
     }
-    
+
     /**
      * Check if the number is divisible by another number
      *
@@ -41,7 +41,7 @@ class Number
     {
         return $this->value % $divisor === 0;
     }
-    
+
     /**
      * Create a range of numbers from start to end
      *
@@ -55,12 +55,12 @@ class Number
         if ($start > $end) {
             throw new \InvalidArgumentException('Start number cannot be greater than end number');
         }
-        
+
         $numbers = [];
         for ($i = $start; $i <= $end; $i++) {
             $numbers[] = new self($i);
         }
-        
+
         return $numbers;
     }
-} 
+}
