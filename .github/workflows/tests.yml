@@ -28,11 +28,12 @@ jobs:
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Execute Tests
-        run: composer test
+      - name: Execute Tests with Coverage
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml
 
       - name: Upload Coverage Reports
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
           fail_ci_if_error: false 
