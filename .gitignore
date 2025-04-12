@@ -1,0 +1,26 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Cache and logs
+*.log
+*.cache
+.php_cs.cache
+.phpunit.result.cache
+.phpunit.cache
+
+# Build directories
+/build/
+/dist/
+/coverage/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.php-cs-fixer.cache 
