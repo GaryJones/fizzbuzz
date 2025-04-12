@@ -2,17 +2,31 @@
 
 namespace FizzBuzz\Tests;
 
-use FizzBuzz\CLI;
+use FizzBuzz\CLI\CLIApplication;
+use FizzBuzz\CLI\InputValidator;
+use FizzBuzz\Config\RuleConfig;
+use FizzBuzz\FizzBuzz;
 use PHPUnit\Framework\TestCase;
 
 class CLITest extends TestCase
 {
+    private CLIApplication $app;
+
+    protected function setUp(): void
+    {
+        $config = new RuleConfig();
+        $fizzBuzz = new FizzBuzz($config->getRules());
+        $validator = new InputValidator();
+
+        $this->app = new CLIApplication($fizzBuzz, $validator);
+    }
+
     /**
      * Test that the help message is displayed when requested
      */
     public function testHelpMessage(): void
     {
-        $output = CLI::run(['fizzbuzz.php', '--help']);
+        $output = $this->app->run(['fizzbuzz.php', '--help']);
 
         // Check that help message is displayed
         $this->assertStringContainsString('FizzBuzz CLI', $output);
@@ -30,15 +44,15 @@ class CLITest extends TestCase
     public function testInvalidInput(): void
     {
         // Test invalid max number
-        $output = CLI::run(['fizzbuzz.php', '-n', '0']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '0']);
         $this->assertStringContainsString('Error:', $output);
 
         // Test invalid start number
-        $output = CLI::run(['fizzbuzz.php', '-s', '0']);
+        $output = $this->app->run(['fizzbuzz.php', '-s', '0']);
         $this->assertStringContainsString('Error:', $output);
 
         // Test start number greater than max number
-        $output = CLI::run(['fizzbuzz.php', '-s', '10', '-n', '5']);
+        $output = $this->app->run(['fizzbuzz.php', '-s', '10', '-n', '5']);
         $this->assertStringContainsString('Error:', $output);
     }
 
@@ -48,7 +62,7 @@ class CLITest extends TestCase
     public function testOutputFormats(): void
     {
         // Test JSON format
-        $output = CLI::run(['fizzbuzz.php', '-n', '5', '-f', 'json']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-f', 'json']);
 
         // Verify JSON structure
         $json = json_decode($output, true);
@@ -58,14 +72,14 @@ class CLITest extends TestCase
         $this->assertArrayHasKey('result', $json[0]);
 
         // Test CSV format
-        $output = CLI::run(['fizzbuzz.php', '-n', '5', '-f', 'csv']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-f', 'csv']);
 
         // Verify CSV format
         $this->assertStringContainsString(',', $output);
         $this->assertStringContainsString('1,2,Fizz,4,Buzz', $output);
 
         // Test text format (default)
-        $output = CLI::run(['fizzbuzz.php', '-n', '5']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5']);
 
         // Verify text format with colors
         $this->assertStringContainsString('1', $output);
@@ -81,7 +95,7 @@ class CLITest extends TestCase
     public function testCommandLineFormats(): void
     {
         // Test short options
-        $output = CLI::run(['fizzbuzz.php', '-n', '5', '-s', '1', '-f', 'text']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-s', '1', '-f', 'text']);
         $this->assertStringContainsString('1', $output);
         $this->assertStringContainsString('2', $output);
         $this->assertStringContainsString('Fizz', $output);
@@ -89,7 +103,7 @@ class CLITest extends TestCase
         $this->assertStringContainsString('Buzz', $output);
 
         // Test long options
-        $output = CLI::run(['fizzbuzz.php', '--max', '5', '--start', '1', '--format', 'text']);
+        $output = $this->app->run(['fizzbuzz.php', '--max', '5', '--start', '1', '--format', 'text']);
         $this->assertStringContainsString('1', $output);
         $this->assertStringContainsString('2', $output);
         $this->assertStringContainsString('Fizz', $output);
@@ -97,7 +111,7 @@ class CLITest extends TestCase
         $this->assertStringContainsString('Buzz', $output);
 
         // Test mixed options
-        $output = CLI::run(['fizzbuzz.php', '-n', '5', '--start', '1', '--format', 'text']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5', '--start', '1', '--format', 'text']);
         $this->assertStringContainsString('1', $output);
         $this->assertStringContainsString('2', $output);
         $this->assertStringContainsString('Fizz', $output);

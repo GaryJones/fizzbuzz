@@ -1,58 +1,51 @@
 <?php
 
-namespace FizzBuzz;
+namespace FizzBuzz\CLI;
 
+use FizzBuzz\Exception\FizzBuzzException;
+use FizzBuzz\FizzBuzz;
 use FizzBuzz\Formatter\FormatterFactory;
 use FizzBuzz\Formatter\FormatterInterface;
 
-class CLI
+class CLIApplication
 {
+    private FizzBuzz $fizzBuzz;
+    private InputValidator $validator;
+
+    public function __construct(
+        FizzBuzz $fizzBuzz,
+        InputValidator $validator
+    ) {
+        $this->fizzBuzz = $fizzBuzz;
+        $this->validator = $validator;
+    }
+
     /**
      * Run the CLI application
      *
      * @param array $argv Command line arguments
      * @return string The formatted output
      */
-    public static function run(array $argv): string
+    public function run(array $argv): string
     {
-        $options = self::parseOptions($argv);
+        $options = $this->parseOptions($argv);
 
         if (isset($options['help'])) {
-            return self::showHelp();
+            return $this->showHelp();
         }
 
-        $maxNumber = $options['max'] ?? 100;
-        $startNumber = $options['start'] ?? 1;
-        $format = $options['format'] ?? 'text';
-
-        // Validate input
-        if ($maxNumber < 1) {
-            return "Error: Maximum number must be greater than 0\n";
-        }
-
-        if ($startNumber < 1) {
-            return "Error: Start number must be greater than 0\n";
-        }
-
-        if ($startNumber > $maxNumber) {
-            return "Error: Start number cannot be greater than maximum number\n";
-        }
-
-        // Create FizzBuzz instance with rules
-        $fizzBuzz = new FizzBuzz([
-            new Rules\FizzRule(),
-            new Rules\BuzzRule(),
-            new Rules\BazzRule()
-        ]);
-
-        // Get results
-        $results = $fizzBuzz->processRange($startNumber, $maxNumber);
-
-        // Format output
         try {
+            $this->validator->validate($options);
+
+            $maxNumber = $options['max'] ?? 100;
+            $startNumber = $options['start'] ?? 1;
+            $format = $options['format'] ?? 'text';
+
+            $results = $this->fizzBuzz->processRange($startNumber, $maxNumber);
             $formatter = FormatterFactory::create($format);
+
             return $formatter->format($results, $startNumber) . "\n";
-        } catch (\InvalidArgumentException $e) {
+        } catch (FizzBuzzException $e) {
             return "Error: " . $e->getMessage() . "\n";
         }
     }
@@ -63,7 +56,7 @@ class CLI
      * @param array $argv Command line arguments
      * @return array Parsed options
      */
-    private static function parseOptions(array $argv): array
+    private function parseOptions(array $argv): array
     {
         $options = [];
 
@@ -92,7 +85,7 @@ class CLI
      *
      * @return string Help message
      */
-    private static function showHelp(): string
+    private function showHelp(): string
     {
         return <<<HELP
 FizzBuzz CLI
