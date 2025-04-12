@@ -18,14 +18,12 @@ class InputValidatorTest extends TestCase
 
     public function testValidatesValidInput(): void
     {
-        $options = [
-            'max' => 100,
-            'start' => 1,
-            'format' => 'text'
-        ];
+        $this->validator->validate(['max' => 10]);
+        $this->validator->validate(['max' => 10, 'start' => 1]);
+        $this->validator->validate(['max' => 10, 'format' => 'json']);
+        $this->validator->validate(['max' => 10, 'start' => 1, 'format' => 'text']);
 
-        $this->validator->validate($options);
-        $this->assertTrue(true); // No exception thrown
+        $this->assertTrue(true); // If we got here, no exceptions were thrown
     }
 
     public function testThrowsExceptionForInvalidMaxNumber(): void
@@ -41,7 +39,7 @@ class InputValidatorTest extends TestCase
         $this->expectException(InvalidInputException::class);
         $this->expectExceptionMessage('Start number must be greater than 0');
 
-        $this->validator->validate(['start' => 0]);
+        $this->validator->validate(['max' => 10, 'start' => 0]);
     }
 
     public function testThrowsExceptionWhenStartGreaterThanMax(): void
@@ -49,7 +47,7 @@ class InputValidatorTest extends TestCase
         $this->expectException(InvalidInputException::class);
         $this->expectExceptionMessage('Start number cannot be greater than maximum number');
 
-        $this->validator->validate(['start' => 10, 'max' => 5]);
+        $this->validator->validate(['max' => 5, 'start' => 10]);
     }
 
     public function testThrowsExceptionForInvalidFormat(): void
@@ -57,6 +55,6 @@ class InputValidatorTest extends TestCase
         $this->expectException(InvalidFormatException::class);
         $this->expectExceptionMessage('Invalid format. Must be one of: text, json, csv');
 
-        $this->validator->validate(['format' => 'invalid']);
+        $this->validator->validate(['max' => 10, 'format' => 'invalid']);
     }
 }

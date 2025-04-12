@@ -6,6 +6,7 @@ use FizzBuzz\CLI\CLIApplication;
 use FizzBuzz\CLI\InputValidator;
 use FizzBuzz\Config\RuleConfig;
 use FizzBuzz\FizzBuzz;
+use FizzBuzz\Formatter\FormatterFactory;
 use PHPUnit\Framework\TestCase;
 
 class CLITest extends TestCase
@@ -17,8 +18,9 @@ class CLITest extends TestCase
         $config = new RuleConfig();
         $fizzBuzz = new FizzBuzz($config->getRules());
         $validator = new InputValidator();
+        $formatterFactory = new FormatterFactory();
 
-        $this->app = new CLIApplication($fizzBuzz, $validator);
+        $this->app = new CLIApplication($fizzBuzz, $validator, $formatterFactory);
     }
 
     /**
@@ -26,9 +28,8 @@ class CLITest extends TestCase
      */
     public function testHelpMessage(): void
     {
-        $output = $this->app->run(['fizzbuzz.php', '--help']);
+        $output = $this->app->run(['fizzbuzz.php', '-h']);
 
-        // Check that help message is displayed
         $this->assertStringContainsString('FizzBuzz CLI', $output);
         $this->assertStringContainsString('Usage:', $output);
         $this->assertStringContainsString('Options:', $output);
@@ -43,17 +44,17 @@ class CLITest extends TestCase
      */
     public function testInvalidInput(): void
     {
-        // Test invalid max number
         $output = $this->app->run(['fizzbuzz.php', '-n', '0']);
         $this->assertStringContainsString('Error:', $output);
+        $this->assertStringContainsString('Maximum number must be greater than 0', $output);
 
-        // Test invalid start number
-        $output = $this->app->run(['fizzbuzz.php', '-s', '0']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '10', '-s', '0']);
         $this->assertStringContainsString('Error:', $output);
+        $this->assertStringContainsString('Start number must be greater than 0', $output);
 
-        // Test start number greater than max number
-        $output = $this->app->run(['fizzbuzz.php', '-s', '10', '-n', '5']);
+        $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-s', '10']);
         $this->assertStringContainsString('Error:', $output);
+        $this->assertStringContainsString('Start number cannot be greater than maximum number', $output);
     }
 
     /**
@@ -63,8 +64,6 @@ class CLITest extends TestCase
     {
         // Test JSON format
         $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-f', 'json']);
-
-        // Verify JSON structure
         $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertCount(5, $json);
@@ -73,15 +72,11 @@ class CLITest extends TestCase
 
         // Test CSV format
         $output = $this->app->run(['fizzbuzz.php', '-n', '5', '-f', 'csv']);
-
-        // Verify CSV format
         $this->assertStringContainsString(',', $output);
         $this->assertStringContainsString('1,2,Fizz,4,Buzz', $output);
 
         // Test text format (default)
         $output = $this->app->run(['fizzbuzz.php', '-n', '5']);
-
-        // Verify text format with colors
         $this->assertStringContainsString('1', $output);
         $this->assertStringContainsString('2', $output);
         $this->assertStringContainsString('Fizz', $output);

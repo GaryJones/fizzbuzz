@@ -1,34 +1,38 @@
 <?php
 
-namespace FizzBuzz\Tests\CLI;
+namespace Tests\CLI;
 
 use FizzBuzz\CLI\CLIApplication;
-use FizzBuzz\CLI\InputValidator;
+use FizzBuzz\CLI\ValidatorInterface;
 use FizzBuzz\Exception\InvalidInputException;
 use FizzBuzz\FizzBuzz;
+use FizzBuzz\Formatter\FormatterFactory;
 use FizzBuzz\Formatter\FormatterInterface;
-use FizzBuzz\Value\Number;
-use FizzBuzz\Value\Result;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class CLIApplicationTest extends TestCase
 {
-    private FizzBuzz&MockObject $fizzBuzz;
-    private InputValidator&MockObject $validator;
     private CLIApplication $app;
+    private FizzBuzz&MockObject $fizzBuzz;
+    private ValidatorInterface&MockObject $validator;
+    private FormatterInterface&MockObject $formatter;
+    private FormatterFactory&MockObject $formatterFactory;
 
     protected function setUp(): void
     {
         $this->fizzBuzz = $this->createMock(FizzBuzz::class);
-        $this->validator = $this->createMock(InputValidator::class);
-        $this->app = new CLIApplication($this->fizzBuzz, $this->validator);
+        $this->validator = $this->createMock(ValidatorInterface::class);
+        $this->formatter = $this->createMock(FormatterInterface::class);
+        $this->formatterFactory = $this->createMock(FormatterFactory::class);
+
+        $this->app = new CLIApplication($this->fizzBuzz, $this->validator, $this->formatterFactory);
     }
 
     public function testShowsHelpMessage(): void
     {
-        $output = $this->app->run(['fizzbuzz.php', '--help']);
-
+        $argv = ['fizzbuzz.php', '-h'];
+        $output = $this->app->run($argv);
         $this->assertStringContainsString('FizzBuzz CLI', $output);
         $this->assertStringContainsString('Usage:', $output);
         $this->assertStringContainsString('Options:', $output);
@@ -36,31 +40,113 @@ class CLIApplicationTest extends TestCase
 
     public function testProcessesValidInput(): void
     {
-        $results = [new Result(new Number(1), '1')];
-        $formatter = $this->createMock(FormatterInterface::class);
+        $argv = ['fizzbuzz.php', '-n', '20'];
+        $expectedResults = ['1', '2', 'Fizz', '4', 'Buzz'];
+        $expectedOutput = "1\n2\nFizz\n4\nBuzz";
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with(['max' => 20]);
+            ->with([
+                'max' => 20,
+                'start' => 1,
+                'format' => 'text'
+            ]);
 
         $this->fizzBuzz->expects($this->once())
             ->method('processRange')
             ->with(1, 20)
-            ->willReturn($results);
+            ->willReturn($expectedResults);
 
-        $output = $this->app->run(['fizzbuzz.php', '--max', '20']);
+        $this->formatter->expects($this->once())
+            ->method('format')
+            ->with($expectedResults, 1)
+            ->willReturn($expectedOutput);
 
-        $this->assertNotEmpty($output);
+        $this->formatterFactory->expects($this->once())
+            ->method('create')
+            ->with('text')
+            ->willReturn($this->formatter);
+
+        $output = $this->app->run($argv);
+        $this->assertEquals($expectedOutput, $output);
     }
 
     public function testHandlesValidationError(): void
     {
+        $argv = ['fizzbuzz.php', '-n', '0'];
+
         $this->validator->expects($this->once())
             ->method('validate')
             ->willThrowException(new InvalidInputException('Invalid input'));
 
-        $output = $this->app->run(['fizzbuzz.php', '--max', '0']);
+        $output = $this->app->run($argv);
+        $this->assertStringContainsString('Error:', $output);
+        $this->assertStringContainsString('Invalid input', $output);
+    }
 
-        $this->assertEquals("Error: Invalid input\n", $output);
+    public function testHandlesLongOptions(): void
+    {
+        $argv = ['fizzbuzz.php', '--max', '20', '--start', '5', '--format', 'json'];
+        $expectedResults = ['Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz'];
+        $expectedOutput = '["Buzz","Fizz","7","8","Fizz","Buzz"]';
+
+        $this->validator->expects($this->once())
+            ->method('validate')
+            ->with([
+                'max' => 20,
+                'start' => 5,
+                'format' => 'json'
+            ]);
+
+        $this->fizzBuzz->expects($this->once())
+            ->method('processRange')
+            ->with(5, 20)
+            ->willReturn($expectedResults);
+
+        $this->formatter->expects($this->once())
+            ->method('format')
+            ->with($expectedResults, 5)
+            ->willReturn($expectedOutput);
+
+        $this->formatterFactory->expects($this->once())
+            ->method('create')
+            ->with('json')
+            ->willReturn($this->formatter);
+
+        $output = $this->app->run($argv);
+        $this->assertEquals($expectedOutput, $output);
+    }
+
+    public function testHandlesMixedOptions(): void
+    {
+        $argv = ['fizzbuzz.php', '-n', '20', '--start', '5', '-f', 'csv'];
+        $expectedResults = ['Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz'];
+        $expectedOutput = "Buzz,Fizz,7,8,Fizz,Buzz";
+
+        $this->validator->expects($this->once())
+            ->method('validate')
+            ->with([
+                'max' => 20,
+                'start' => 5,
+                'format' => 'csv'
+            ]);
+
+        $this->fizzBuzz->expects($this->once())
+            ->method('processRange')
+            ->with(5, 20)
+            ->willReturn($expectedResults);
+
+        $this->formatter->expects($this->once())
+            ->method('format')
+            ->with($expectedResults, 5)
+            ->willReturn($expectedOutput);
+
+        $this->formatterFactory->expects($this->once())
+            ->method('create')
+            ->with('csv')
+            ->willReturn($this->formatter);
+
+        $output = $this->app->run($argv);
+        $this->assertEquals($expectedOutput, $output);
     }
 }

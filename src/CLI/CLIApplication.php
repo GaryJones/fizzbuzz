@@ -2,7 +2,7 @@
 
 namespace FizzBuzz\CLI;
 
-use FizzBuzz\Exception\FizzBuzzException;
+use FizzBuzz\Exception\InvalidInputException;
 use FizzBuzz\FizzBuzz;
 use FizzBuzz\Formatter\FormatterFactory;
 use FizzBuzz\Formatter\FormatterInterface;
@@ -10,14 +10,14 @@ use FizzBuzz\Formatter\FormatterInterface;
 class CLIApplication
 {
     private FizzBuzz $fizzBuzz;
-    private InputValidator $validator;
+    private ValidatorInterface $validator;
+    private FormatterFactory $formatterFactory;
 
-    public function __construct(
-        FizzBuzz $fizzBuzz,
-        InputValidator $validator
-    ) {
+    public function __construct(FizzBuzz $fizzBuzz, ValidatorInterface $validator, FormatterFactory $formatterFactory)
+    {
         $this->fizzBuzz = $fizzBuzz;
         $this->validator = $validator;
+        $this->formatterFactory = $formatterFactory;
     }
 
     /**
@@ -28,25 +28,32 @@ class CLIApplication
      */
     public function run(array $argv): string
     {
-        $options = $this->parseOptions($argv);
-
-        if (isset($options['help'])) {
-            return $this->showHelp();
-        }
-
         try {
-            $this->validator->validate($options);
+            $options = $this->parseOptions($argv);
 
-            $maxNumber = $options['max'] ?? 100;
-            $startNumber = $options['start'] ?? 1;
-            $format = $options['format'] ?? 'text';
+            // Handle help request first
+            if ($options['help']) {
+                return $this->getHelpMessage();
+            }
 
-            $results = $this->fizzBuzz->processRange($startNumber, $maxNumber);
-            $formatter = FormatterFactory::create($format);
+            // Convert options to a standardized format
+            $params = [
+                'max' => $options['max'],
+                'start' => $options['start'],
+                'format' => $options['format']
+            ];
 
-            return $formatter->format($results, $startNumber) . "\n";
-        } catch (FizzBuzzException $e) {
-            return "Error: " . $e->getMessage() . "\n";
+            // Validate the parameters
+            $this->validator->validate($params);
+
+            // Process FizzBuzz
+            $results = $this->fizzBuzz->processRange($params['start'], $params['max']);
+
+            // Format output
+            $formatter = $this->formatterFactory->create($params['format']);
+            return $formatter->format($results, $params['start']);
+        } catch (InvalidInputException $e) {
+            return sprintf("Error: %s\n", $e->getMessage());
         }
     }
 
@@ -58,22 +65,47 @@ class CLIApplication
      */
     private function parseOptions(array $argv): array
     {
-        $options = [];
+        // Initialize default values
+        $options = [
+            'help' => false,
+            'max' => null,
+            'start' => 1,
+            'format' => 'text'
+        ];
 
         // Skip the script name
         array_shift($argv);
 
+        // Parse arguments
         for ($i = 0; $i < count($argv); $i++) {
             $arg = $argv[$i];
 
-            if ($arg === '--help' || $arg === '-h') {
-                $options['help'] = true;
-            } elseif ($arg === '--max' || $arg === '-n') {
-                $options['max'] = (int) $argv[++$i];
-            } elseif ($arg === '--start' || $arg === '-s') {
-                $options['start'] = (int) $argv[++$i];
-            } elseif ($arg === '--format' || $arg === '-f') {
-                $options['format'] = $argv[++$i];
+            switch ($arg) {
+                case '-h':
+                case '--help':
+                    $options['help'] = true;
+                    break;
+
+                case '-n':
+                case '--max':
+                    if (isset($argv[$i + 1])) {
+                        $options['max'] = (int)$argv[++$i];
+                    }
+                    break;
+
+                case '-s':
+                case '--start':
+                    if (isset($argv[$i + 1])) {
+                        $options['start'] = (int)$argv[++$i];
+                    }
+                    break;
+
+                case '-f':
+                case '--format':
+                    if (isset($argv[$i + 1])) {
+                        $options['format'] = $argv[++$i];
+                    }
+                    break;
             }
         }
 
@@ -85,24 +117,19 @@ class CLIApplication
      *
      * @return string Help message
      */
-    private function showHelp(): string
+    private function getHelpMessage(): string
     {
         return <<<HELP
 FizzBuzz CLI
 
-Usage:
-  php fizzbuzz.php [options]
+Usage: fizzbuzz.php [options]
 
 Options:
-  -n, --max NUMBER    Maximum number to process (default: 100)
+  -n, --max NUMBER    Maximum number to process (required)
   -s, --start NUMBER  Starting number (default: 1)
-  -f, --format FORMAT Output format (json, csv, text) (default: text)
+  -f, --format FORMAT Output format (text|json|csv, default: text)
   -h, --help         Show this help message
 
-Examples:
-  php fizzbuzz.php --max 20
-  php fizzbuzz.php -n 30 -f json
-  php fizzbuzz.php --start 5 --max 15 --format csv
 HELP;
     }
 }

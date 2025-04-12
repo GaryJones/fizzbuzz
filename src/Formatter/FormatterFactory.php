@@ -11,7 +11,7 @@ class FormatterFactory
      * @return FormatterInterface
      * @throws \InvalidArgumentException If format is not supported
      */
-    public static function create(string $format): FormatterInterface
+    public function create(string $format): FormatterInterface
     {
         return match ($format) {
             'json' => new JsonFormatter(),
