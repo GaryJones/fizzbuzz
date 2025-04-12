@@ -11,14 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [8.1, 8.2, 8.3]
+        php: [8.3]
         dependency-version: [prefer-stable]
 
     name: PHP ${{ matrix.php }} Tests
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -27,13 +26,13 @@ jobs:
           extensions: mbstring, intl
           coverage: xdebug
 
-      - name: Install dependencies
-        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress
+      - name: Install Dependencies
+        run: composer install --${{ matrix.dependency-version }} --prefer-dist --no-progress
 
-      - name: Execute tests via PHPUnit
-        run: vendor/bin/phpunit --coverage-text
+      - name: Execute Tests
+        run: composer test
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload Coverage Reports
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

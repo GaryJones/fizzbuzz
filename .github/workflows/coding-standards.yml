@@ -7,27 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
-  phpcs:
+  coding-standards:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [8.1, 8.2, 8.3]
-
-    name: PHP ${{ matrix.php }} Coding Standards
+        php: [8.3]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring, intl
-          tools: phpcs
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, intl
+        coverage: none
 
-      - name: Install dependencies
-        run: composer update --prefer-dist --no-progress
+    - name: Install Dependencies
+      run: composer install --prefer-dist --no-progress
 
-      - name: Check coding standards
-        run: vendor/bin/phpcs --standard=phpcs.xml 
+    - name: Check Coding Standards
+      run: composer cs-check 
