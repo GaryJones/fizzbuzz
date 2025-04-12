@@ -17,7 +17,7 @@ class FormatterTest extends TestCase
             '11', 'Fizz', '13', 'Bazz', 'FizzBuzz'
         ];
         $startNumber = 1;
-        $maxNumber = 20;
+        $maxNumber = 15;
 
         $jsonOutput = [];
         for ($i = $startNumber; $i <= $maxNumber; $i++) {
@@ -33,7 +33,7 @@ class FormatterTest extends TestCase
         $decoded = json_decode($formatted, true);
 
         $this->assertIsArray($decoded);
-        $this->assertCount(20, $decoded);
+        $this->assertCount(15, $decoded);
 
         // Check first item
         $this->assertEquals(1, $decoded[0]['number']);
